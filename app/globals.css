@@ -95,9 +95,53 @@ body {
 }
 .prose-note .katex-display {
   margin: 1.1rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
   padding: 0.2rem 0;
+}
+
+/* ---------- 블록 수식: 넘치면 축소 (FitMath) ---------- */
+.fit-math {
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+}
+.fit-math-inner {
+  display: inline-block;
+  width: max-content;
+  max-width: none;
+  text-align: center;
+}
+
+/* 그래프 옆 짧은 식: 여백 없이 왼쪽 정렬 */
+.eq-tight .katex-display {
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left;
+}
+.eq-tight .fit-math,
+.eq-tight .fit-math-inner,
+.eq-tight .katex-display > .katex {
+  text-align: left;
+}
+
+/* ---------- 수식 색상 (다크모드 대응) ---------- */
+.tx-c1 { color: var(--c1); }
+.tx-c2 { color: var(--c2); }
+.tx-c3 { color: var(--c3); }
+.tx-b { color: var(--cb); }
+.tx-dim { opacity: 0.4; }
+
+/* ---------- 방정식 ↔ 행렬 대응 하이라이트 ---------- */
+.eqmap [data-k] {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.12s, box-shadow 0.12s;
+}
+.eqmap [data-k].is-on {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 16%, transparent);
+}
+.eqmap.has-on [data-k]:not(.is-on) {
+  opacity: 0.45;
 }
 
 /* ---------- 슬라이더 ---------- */

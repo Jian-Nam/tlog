@@ -48,9 +48,9 @@ export default function ColumnPicture2D() {
           격자 안 아무 곳이나 눌러 <strong style={{ color: "var(--cb)" }}>b</strong>를 옮겨 보세요. 격자 바깥은
           화살표가 지나가는 여백입니다.
         </p>
-        <Tex block>{`\\textcolor{#2f6fdf}{${fmt(x)}}\\begin{bmatrix}2\\\\-1\\end{bmatrix} + \\textcolor{#e8590c}{${fmt(
+        <Tex block>{`\\htmlClass{tx-c1}{${fmt(x)}\\begin{bmatrix}2\\\\-1\\end{bmatrix}} + \\htmlClass{tx-c2}{${fmt(
           y,
-        )}}\\begin{bmatrix}-1\\\\2\\end{bmatrix} = \\begin{bmatrix}${fmt(b[0])}\\\\${fmt(b[1])}\\end{bmatrix}`}</Tex>
+        )}\\begin{bmatrix}-1\\\\2\\end{bmatrix}} = \\htmlClass{tx-b}{\\begin{bmatrix}${fmt(b[0])}\\\\${fmt(b[1])}\\end{bmatrix}}`}</Tex>
         <div className="rounded-lg bg-surface-2 p-3 font-mono">
           <span style={{ color: "var(--c1)" }}>x = {fmt(x)}</span>
           <br />

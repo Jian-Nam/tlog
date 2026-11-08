@@ -15,3 +15,4 @@ export const ColumnPicture3D = dynamic(() => import("./ColumnPicture3D"), { ssr:
 export { default as RowPicture2D } from "./RowPicture2D";
 export { default as ColumnPicture2D } from "./ColumnPicture2D";
 export { default as MatVec } from "./MatVec";
+export { default as EqMatrixMap } from "./EqMatrixMap";

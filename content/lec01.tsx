@@ -1,7 +1,7 @@
 import { M, Tex } from "@/components/Tex";
 import { Figure } from "@/components/ui";
 import { T } from "@/components/VideoPlayer";
-import { ColumnPicture2D, ColumnPicture3D, MatVec, RowPicture2D, RowPicture3D } from "@/components/viz";
+import { ColumnPicture2D, ColumnPicture3D, EqMatrixMap, MatVec, RowPicture2D, RowPicture3D } from "@/components/viz";
 
 export const toc = [
   { id: "intro", label: "선형대수의 근본 문제" },
@@ -38,7 +38,19 @@ export default function Lecture01() {
       <p>
         강의의 첫 예제 <T at="4:20" />:
       </p>
-      <M>{"\\begin{aligned} 2x - y &= 0 \\\\ -x + 2y &= 3 \\end{aligned} \\qquad\\Longleftrightarrow\\qquad \\underbrace{\\begin{bmatrix} 2 & -1 \\\\ -1 & 2 \\end{bmatrix}}_{A} \\underbrace{\\begin{bmatrix} x \\\\ y \\end{bmatrix}}_{\\mathbf{x}} = \\underbrace{\\begin{bmatrix} 0 \\\\ 3 \\end{bmatrix}}_{b}"}</M>
+      <EqMatrixMap
+        A={[
+          [2, -1],
+          [-1, 2],
+        ]}
+        b={[0, 3]}
+      />
+      <p>
+        식을 행렬로 옮기는 규칙은 단순합니다. <strong>i번째 방정식은 A의 i번째 행</strong>이 되고,{" "}
+        <span className="tx-c1">x의 계수들</span>은 A의 1열, <span className="tx-c2">y의 계수들</span>은 A의 2열,{" "}
+        <span className="tx-b">우변</span>은 b가 됩니다. 식에서 생략된 <Tex>{"1"}</Tex>(예: <Tex>{"-y"}</Tex>의{" "}
+        <Tex>{"-1"}</Tex>)도 행렬에는 빠짐없이 들어갑니다.
+      </p>
       <p>
         행 그림에서는 각 <strong>행(방정식)</strong>이 평면 위의 직선 하나입니다. 첫 번째 식은 원점을 지나는 직선,
         두 번째 식은 <Tex>{"(-3, 0)"}</Tex>과 <Tex>{"(-1, 1)"}</Tex>을 지나는 직선이고, 두 직선은{" "}
@@ -60,7 +72,7 @@ export default function Lecture01() {
       <p>
         이번에는 같은 방정식을 <strong>열</strong> 단위로 읽습니다 <T at="8:47" />.
       </p>
-      <M>{"x \\begin{bmatrix} \\color{#2f6fdf} 2 \\\\ \\color{#2f6fdf} -1 \\end{bmatrix} + y \\begin{bmatrix} \\color{#e8590c} -1 \\\\ \\color{#e8590c} 2 \\end{bmatrix} = \\begin{bmatrix} 0 \\\\ 3 \\end{bmatrix}"}</M>
+      <M>{"\\htmlClass{tx-c1}{x \\begin{bmatrix} 2 \\\\ -1 \\end{bmatrix}} + \\htmlClass{tx-c2}{y \\begin{bmatrix} -1 \\\\ 2 \\end{bmatrix}} = \\htmlClass{tx-b}{\\begin{bmatrix} 0 \\\\ 3 \\end{bmatrix}}"}</M>
       <p>
         질문이 바뀌었습니다. &ldquo;두 직선이 어디서 만나는가?&rdquo;가 아니라 &ldquo;첫 번째 열을 <Tex>x</Tex>배, 두
         번째 열을 <Tex>y</Tex>배 해서 더하면 <Tex>b</Tex>가 되는 <Tex>{"x, y"}</Tex>는?&rdquo;입니다. 이것이 강의
@@ -90,7 +102,18 @@ export default function Lecture01() {
       <p>
         이제 3차원입니다 <T at="17:31" />. 미지수가 세 개, 방정식이 세 개:
       </p>
-      <M>{"\\begin{aligned} 2x - y \\phantom{{}+0z} &= 0 \\\\ -x + 2y - z &= -1 \\\\ -3y + 4z &= 4 \\end{aligned} \\qquad A = \\begin{bmatrix} 2 & -1 & 0 \\\\ -1 & 2 & -1 \\\\ 0 & -3 & 4 \\end{bmatrix},\\quad b = \\begin{bmatrix} 0 \\\\ -1 \\\\ 4 \\end{bmatrix}"}</M>
+      <EqMatrixMap
+        A={[
+          [2, -1, 0],
+          [-1, 2, -1],
+          [0, -3, 4],
+        ]}
+        b={[0, -1, 4]}
+      />
+      <p>
+        첫 번째 식에는 <Tex>z</Tex>가 없지만, 행렬에서는 그 자리에 <Tex>0</Tex>이 들어갑니다. 흐리게 표시된{" "}
+        <Tex>{"0z"}</Tex>에 마우스를 올려 보세요.
+      </p>
       <p>
         3차원에서 일차방정식 하나는 <strong>평면</strong>입니다. 평면 두 개는 보통 한 <strong>직선</strong>에서
         만나고, 세 번째 평면이 그 직선을 한 <strong>점</strong>에서 자릅니다. 교수님도 칠판에 그리면서 고생하시는데{" "}
@@ -115,7 +138,7 @@ export default function Lecture01() {
       </p>
 
       <h2 id="col-3d">3×3 열 그림</h2>
-      <M>{"x \\begin{bmatrix} 2 \\\\ -1 \\\\ 0 \\end{bmatrix} + y \\begin{bmatrix} -1 \\\\ 2 \\\\ -3 \\end{bmatrix} + z \\begin{bmatrix} 0 \\\\ -1 \\\\ 4 \\end{bmatrix} = \\begin{bmatrix} 0 \\\\ -1 \\\\ 4 \\end{bmatrix}"}</M>
+      <M>{"\\htmlClass{tx-c1}{x \\begin{bmatrix} 2 \\\\ -1 \\\\ 0 \\end{bmatrix}} + \\htmlClass{tx-c2}{y \\begin{bmatrix} -1 \\\\ 2 \\\\ -3 \\end{bmatrix}} + \\htmlClass{tx-c3}{z \\begin{bmatrix} 0 \\\\ -1 \\\\ 4 \\end{bmatrix}} = \\htmlClass{tx-b}{\\begin{bmatrix} 0 \\\\ -1 \\\\ 4 \\end{bmatrix}}"}</M>
       <p>
         3차원 공간의 벡터 세 개를 섞어서 b를 만드는 문제입니다 <T at="22:57" />. 이 예제는 일부러 쉽게 만들어져서, b가
         바로 세 번째 열입니다. 따라서 <Tex>{"x = 0,\\ y = 0,\\ z = 1"}</Tex> <T at="25:02" />. 행 그림에서 세 평면이

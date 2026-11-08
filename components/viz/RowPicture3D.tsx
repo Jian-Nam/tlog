@@ -46,9 +46,9 @@ export default function RowPicture3D() {
       <div className="grid gap-x-8 gap-y-3 md:grid-cols-[minmax(0,1fr)_200px]">
         <div className="space-y-2">
           {EQ.map((e, i) => (
-            <div key={i} className="grid grid-cols-[150px_minmax(0,1fr)] items-center gap-2 text-sm">
-              <span style={{ color: colors[i] }}>
-                <Tex>{`${e} = ${fmt(b[i])}`}</Tex>
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-3 text-sm">
+              <span className="eq-tight min-w-0" style={{ color: colors[i] }}>
+                <Tex block>{`${e} = ${fmt(b[i])}`}</Tex>
               </span>
               <Slider label={`b${"₁₂₃"[i]}`} value={b[i]} onChange={setBi(i)} min={-4} max={4} color={colors[i]} />
             </div>
