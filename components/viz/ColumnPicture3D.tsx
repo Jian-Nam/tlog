@@ -24,7 +24,10 @@ const A1: V3 = [2, -1, 0];
 const A2: V3 = [-1, 2, -3];
 const A3_OK: V3 = [0, -1, 4];
 const A3_SINGULAR: V3 = add(A1, A2); // [1, 1, -3]
+// |b| ≤ 4 → 계수 |x| ≤ 9.33 (A⁻¹ 의 행 절댓값 합 × 4) → 한 자리 정수 자리로 충분
+const TPL = "-0.00";
 const colPaint = {
+  tpl: TPL,
   cellClass: (_: number, j: number) => TONE[j],
   xClass: (j: number) => TONE[j],
   bClass: () => "tx-b",
@@ -108,18 +111,19 @@ export default function ColumnPicture3D({ singular = false }: { singular?: boole
       </Scene3D>
 
       <p className="!my-0 text-sm text-muted">분홍 점 b를 잡고 끌어 보세요. 빈 곳을 끌면 회전합니다.</p>
+      {/* 3×3 일차결합 식은 가로로 길어서 위아래로 배치해 폭을 넉넉히 씀 */}
       <FormulaPair
-        layout="row"
+        layout="stack"
         items={
           !singular || reachable
             ? [
-                { label: "열의 일차결합", tex: columnsTex(rows, coef, b) },
+                { label: "열의 일차결합", tex: columnsTex(rows, coef, b, { tpl: TPL }) },
                 { label: "행렬 형태 Ax = b", tex: matrixTex(rows, coef, b, colPaint) },
               ]
             : [
                 {
                   label: "열의 일차결합 (b에 가장 가까운 점)",
-                  tex: `${columnsTex(rows, coef, reach, { bClass: () => undefined })} \\neq \\htmlClass{tx-b}{b}`,
+                  tex: `${columnsTex(rows, coef, reach, { bClass: () => undefined, tpl: TPL })} \\neq \\htmlClass{tx-b}{b}`,
                 },
                 { label: "행렬 형태 Ax = b — 해 없음", tex: matrixTex(rows, ["x", "y", "z"], b, colPaint) },
               ]

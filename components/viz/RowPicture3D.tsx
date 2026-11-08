@@ -13,6 +13,8 @@ const ROWS: [V3, V3, V3] = [
   [0, -3, 4],
 ];
 const rowTone = (i: number) => TONE[i];
+// b 는 |b| ≤ 6 이지만 해 x 는 최대 14 까지 나올 수 있음 → x 만 두 자리 정수 자리
+const X_TPL = "-00.00";
 const PAIRS: [number, number][] = [
   [0, 1],
   [0, 2],
@@ -51,7 +53,7 @@ export default function RowPicture3D() {
           { label: "방정식 (행마다 평면 하나)", tex: equationsTex(ROWS, b, { termClass: rowTone, bClass: rowTone }) },
           {
             label: "행렬 형태 Ax = b",
-            tex: matrixTex(ROWS, sol, b, { cellClass: rowTone, bClass: rowTone, xClass: () => "tx-b" }),
+            tex: matrixTex(ROWS, sol, b, { cellClass: rowTone, bClass: rowTone, xClass: () => "tx-b", xTpl: X_TPL }),
           },
         ]}
       />

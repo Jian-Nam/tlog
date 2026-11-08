@@ -20,8 +20,8 @@ export default function RowPicture2D() {
   const inView = Math.abs(x) < 5 && Math.abs(y) < 5;
 
   return (
-    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_250px]">
-      <div className="touch-none rounded-lg border border-border">
+    <div className="space-y-4">
+      <div className="mx-auto max-w-[480px] touch-none rounded-lg border border-border">
         <Plane2D view={view}>
           <DraggableLine view={view} a={A[0][0]} b={A[0][1]} c={b[0]} color="var(--c1)" onChange={(v) => setB([v, b[1]])} />
           <DraggableLine view={view} a={A[1][0]} b={A[1][1]} c={b[1]} color="var(--c2)" onChange={(v) => setB([b[0], v])} />
@@ -36,10 +36,10 @@ export default function RowPicture2D() {
         </Plane2D>
       </div>
 
-      <div className="flex flex-col justify-center gap-3 text-sm">
-        <p className="!my-0 text-muted">직선을 잡고 끌어 평행이동해 보세요.</p>
-        <FormulaPair
-          items={[
+      <p className="!my-0 text-center text-sm text-muted">직선을 잡고 끌어 평행이동해 보세요.</p>
+      <FormulaPair
+        layout="row"
+        items={[
             {
               label: "방정식 (행마다 직선 하나)",
               tex: equationsTex(A, b, { termClass: rowTone, bClass: rowTone }),
@@ -48,9 +48,8 @@ export default function RowPicture2D() {
               label: "행렬 형태 Ax = b",
               tex: matrixTex(A, [x, y], b, { cellClass: rowTone, bClass: rowTone, xClass: () => "tx-b" }),
             },
-          ]}
-        />
-      </div>
+        ]}
+      />
     </div>
   );
 }

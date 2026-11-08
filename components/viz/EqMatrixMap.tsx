@@ -1,4 +1,5 @@
 import { Tex } from "@/components/Tex";
+import { fmt } from "@/components/ui";
 import { TONE, VARS, equationsTex, matrixTex } from "./latex";
 
 /**
@@ -8,8 +9,10 @@ import { TONE, VARS, equationsTex, matrixTex } from "./latex";
  */
 export default function EqMatrixMap({ A, b }: { A: number[][]; b: number[] }) {
   const col = (_: number, j: number) => TONE[j];
-  const eqTex = equationsTex(A, b, { termClass: col, bClass: () => "tx-b", zero: "dim", one: "dim" });
-  const matTex = matrixTex(A, VARS.slice(0, A[0].length), b, {
+  // 정적인 예제라 고정 폭 자리 없이 문자열로 전달
+  const bs = b.map((v) => fmt(v));
+  const eqTex = equationsTex(A, bs, { termClass: col, bClass: () => "tx-b", zero: "dim", one: "dim" });
+  const matTex = matrixTex(A, VARS.slice(0, A[0].length), bs, {
     cellClass: col,
     xClass: (j) => TONE[j],
     bClass: () => "tx-b",

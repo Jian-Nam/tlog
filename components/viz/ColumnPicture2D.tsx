@@ -27,8 +27,8 @@ export default function ColumnPicture2D() {
   const clamp = (v: number) => Math.max(-LIM, Math.min(LIM, Math.round(v * 10) / 10));
 
   return (
-    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_250px]">
-      <div className="cursor-crosshair rounded-lg border border-border">
+    <div className="space-y-4">
+      <div className="mx-auto max-w-[480px] cursor-crosshair rounded-lg border border-border">
         <Plane2D view={view} gridR={LIM} onPointer={(p, phase) => phase !== "up" && setB([clamp(p[0]), clamp(p[1])])}>
           <Arrow view={view} to={a1} color="var(--c1)" width={1.5} opacity={0.35} dashed />
           <Arrow view={view} to={a2} color="var(--c2)" width={1.5} opacity={0.35} dashed />
@@ -48,20 +48,19 @@ export default function ColumnPicture2D() {
         </Plane2D>
       </div>
 
-      <div className="flex flex-col justify-center gap-3 text-sm">
-        <p className="!my-0 text-muted">
-          격자 안 아무 곳이나 눌러 <strong className="tx-b">b</strong>를 옮겨 보세요.
-        </p>
-        <FormulaPair
-          items={[
+      <p className="!my-0 text-center text-sm text-muted">
+        격자 안 아무 곳이나 눌러 <strong className="tx-b">b</strong>를 옮겨 보세요.
+      </p>
+      <FormulaPair
+        layout="row"
+        items={[
             { label: "열의 일차결합", tex: columnsTex(A, [x, y], b) },
             {
               label: "행렬 형태 Ax = b",
               tex: matrixTex(A, [x, y], b, { cellClass: (_, j) => colTone(j), xClass: colTone, bClass: () => "tx-b" }),
             },
-          ]}
-        />
-      </div>
+        ]}
+      />
     </div>
   );
 }
