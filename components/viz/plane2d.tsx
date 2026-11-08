@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 
 export type V2 = [number, number];
 
@@ -219,6 +219,86 @@ export function Label({
     >
       {children}
     </text>
+  );
+}
+
+/** 화면(client) 좌표 → 수학 좌표 */
+export function clientToMath(svg: SVGSVGElement, view: View, clientX: number, clientY: number): V2 {
+  const r = svg.getBoundingClientRect();
+  const px = ((clientX - r.left) / r.width) * view.size;
+  const py = ((clientY - r.top) / r.height) * view.size;
+  return [(px - view.size / 2) / view.s, -(py - view.size / 2) / view.s];
+}
+
+/**
+ * 드래그로 평행이동할 수 있는 직선 ax + by = c.
+ * 직선을 잡고 끌면 기울기는 그대로, 잡은 점이 포인터를 따라가도록 c 가 바뀜.
+ */
+export function DraggableLine({
+  view,
+  a,
+  b,
+  c,
+  color,
+  onChange,
+  limit = 6,
+}: {
+  view: View;
+  a: number;
+  b: number;
+  c: number;
+  color: string;
+  onChange: (c: number) => void;
+  limit?: number;
+}) {
+  const [hover, setHover] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const drag = useRef<{ p0: V2; c0: number } | null>(null);
+  const active = hover || dragging;
+
+  const n = Math.hypot(a, b);
+  const p: V2 = [(a * c) / (n * n), (b * c) / (n * n)];
+  const d: V2 = [-b / n, a / n];
+  const L = view.R * 3;
+  const ends = {
+    x1: view.sx(p[0] - d[0] * L),
+    y1: view.sy(p[1] - d[1] * L),
+    x2: view.sx(p[0] + d[0] * L),
+    y2: view.sy(p[1] + d[1] * L),
+  };
+  const toMath = (e: React.PointerEvent<SVGLineElement>) =>
+    clientToMath(e.currentTarget.ownerSVGElement!, view, e.clientX, e.clientY);
+
+  return (
+    <g>
+      <line {...ends} stroke={color} strokeWidth={active ? 4.5 : 2.5} strokeLinecap="round" />
+      {/* 잡기 쉬운 두꺼운 투명 영역 */}
+      <line
+        {...ends}
+        stroke="transparent"
+        strokeWidth={22}
+        style={{ cursor: dragging ? "grabbing" : "grab" }}
+        onPointerEnter={() => setHover(true)}
+        onPointerLeave={() => setHover(false)}
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          drag.current = { p0: toMath(e), c0: c };
+          setDragging(true);
+        }}
+        onPointerMove={(e) => {
+          if (!drag.current) return;
+          const q = toMath(e);
+          const { p0, c0 } = drag.current;
+          const next = c0 + a * (q[0] - p0[0]) + b * (q[1] - p0[1]);
+          onChange(Math.max(-limit, Math.min(limit, Math.round(next * 10) / 10)));
+        }}
+        onPointerUp={(e) => {
+          drag.current = null;
+          e.currentTarget.releasePointerCapture(e.pointerId);
+          setDragging(false);
+        }}
+      />
+    </g>
   );
 }
 

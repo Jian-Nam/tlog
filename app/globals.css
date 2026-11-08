@@ -130,20 +130,6 @@ body {
 .tx-b { color: var(--cb); }
 .tx-dim { opacity: 0.4; }
 
-/* ---------- 방정식 ↔ 행렬 대응 하이라이트 ---------- */
-.eqmap [data-k] {
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.12s, box-shadow 0.12s;
-}
-.eqmap [data-k].is-on {
-  background: color-mix(in srgb, currentColor 16%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 16%, transparent);
-}
-.eqmap.has-on [data-k]:not(.is-on) {
-  opacity: 0.45;
-}
-
 /* ---------- 슬라이더 ---------- */
 input[type="range"].slider {
   -webkit-appearance: none;

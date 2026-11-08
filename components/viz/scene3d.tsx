@@ -1,8 +1,8 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Html, Line, OrbitControls } from "@react-three/drei";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 
 export type V3 = [number, number, number];
@@ -209,6 +209,192 @@ export function Point3D({ p, color, r = 0.12 }: { p: V3; color: string; r?: numb
       <sphereGeometry args={[r, 24, 24]} />
       <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.35} />
     </mesh>
+  );
+}
+
+// ---------- 드래그 ----------
+
+/** 드래그 중에는 OrbitControls 회전을 잠금 */
+function useOrbitLock() {
+  const get = useThree((s) => s.get);
+  return (locked: boolean) => {
+    const controls = get().controls as unknown as { enabled: boolean } | null;
+    if (controls) controls.enabled = !locked;
+  };
+}
+
+function setCursor(c: string) {
+  if (typeof document !== "undefined") document.body.style.cursor = c;
+}
+
+const snap = (v: number, lim: number) => Math.max(-lim, Math.min(lim, Math.round(v * 10) / 10));
+
+/**
+ * 드래그로 옮길 수 있는 점.
+ * 원점을 지나고 카메라 시선에 수직인 평면과 포인터 광선의 교점으로 위치를 정함.
+ * (화면에서 보이는 위치는 포인터 그대로, 깊이는 원점 평면에 맞춰짐)
+ */
+export function DragPoint({
+  p,
+  color,
+  onChange,
+  limit = 4,
+}: {
+  p: V3;
+  color: string;
+  onChange: (p: V3) => void;
+  limit?: number;
+}) {
+  const camera = useThree((s) => s.camera);
+  const lock = useOrbitLock();
+  const [hover, setHover] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const plane = useMemo(() => new THREE.Plane(), []);
+  const hit = useMemo(() => new THREE.Vector3(), []);
+  const dir = useMemo(() => new THREE.Vector3(), []);
+  const active = hover || dragging;
+
+  return (
+    <group position={p}>
+      <mesh>
+        <sphereGeometry args={[active ? 0.18 : 0.14, 24, 24]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.35} />
+      </mesh>
+      <mesh scale={active ? 1 : 0.85}>
+        <sphereGeometry args={[0.32, 24, 24]} />
+        <meshBasicMaterial color={color} transparent opacity={active ? 0.25 : 0.12} depthWrite={false} />
+      </mesh>
+      {/* 잡기 쉬운 투명 영역 */}
+      <mesh
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHover(true);
+          setCursor("grab");
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          if (!dragging) setCursor("");
+        }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          (e.target as unknown as Element).setPointerCapture(e.pointerId);
+          lock(true);
+          setDragging(true);
+          setCursor("grabbing");
+        }}
+        onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+          if (!dragging) return;
+          camera.getWorldDirection(dir);
+          plane.set(dir, 0);
+          if (e.ray.intersectPlane(plane, hit)) onChange([snap(hit.x, limit), snap(hit.y, limit), snap(hit.z, limit)]);
+        }}
+        onPointerUp={(e) => {
+          (e.target as unknown as Element).releasePointerCapture(e.pointerId);
+          lock(false);
+          setDragging(false);
+          setCursor(hover ? "grab" : "");
+        }}
+      >
+        <sphereGeometry args={[0.45, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+    </group>
+  );
+}
+
+/**
+ * 드래그로 법선 방향 평행이동할 수 있는 평면 n·p = d.
+ * 잡은 점을 지나는 법선 직선 위에서 포인터 광선과 가장 가까운 점을 찾아 d 를 갱신.
+ */
+export function DraggablePlane({
+  n,
+  d,
+  color,
+  onChange,
+  size = 6.5,
+  limit = 6,
+}: {
+  n: V3;
+  d: number;
+  color: string;
+  onChange: (d: number) => void;
+  size?: number;
+  limit?: number;
+}) {
+  const lock = useOrbitLock();
+  const [hover, setHover] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const grab = useRef<{ p0: THREE.Vector3; d0: number } | null>(null);
+  const active = hover || dragging;
+
+  const { pos, quat, u, len } = useMemo(() => {
+    const nv = new THREE.Vector3(...n);
+    const len = nv.length();
+    const u = nv.clone().divideScalar(len);
+    return {
+      pos: u.clone().multiplyScalar(d / len),
+      quat: new THREE.Quaternion().setFromUnitVectors(Z, u),
+      u,
+      len,
+    };
+  }, [n, d]);
+  const edges = useMemo(() => new THREE.EdgesGeometry(new THREE.PlaneGeometry(size, size)), [size]);
+  useEffect(() => () => edges.dispose(), [edges]);
+
+  return (
+    <group position={pos} quaternion={quat}>
+      <mesh
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHover(true);
+          setCursor("grab");
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          if (!dragging) setCursor("");
+        }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          (e.target as unknown as Element).setPointerCapture(e.pointerId);
+          grab.current = { p0: e.point.clone(), d0: d };
+          lock(true);
+          setDragging(true);
+          setCursor("grabbing");
+        }}
+        onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+          if (!grab.current) return;
+          // 직선 L(t) = p0 + t·u 위에서 광선과 가장 가까운 점의 t
+          const { p0, d0 } = grab.current;
+          const o = e.ray.origin,
+            r = e.ray.direction;
+          const w = p0.clone().sub(o);
+          const bb = u.dot(r);
+          const denom = 1 - bb * bb;
+          if (denom < 1e-4) return; // 법선 방향을 정면으로 보고 있으면 이동 불가
+          const t = (bb * r.dot(w) - u.dot(w)) / denom;
+          onChange(snap(d0 + t * len, limit));
+        }}
+        onPointerUp={(e) => {
+          (e.target as unknown as Element).releasePointerCapture(e.pointerId);
+          grab.current = null;
+          lock(false);
+          setDragging(false);
+          setCursor(hover ? "grab" : "");
+        }}
+      >
+        <planeGeometry args={[size, size]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={active ? 0.45 : 0.28}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+      <lineSegments geometry={edges}>
+        <lineBasicMaterial color={color} transparent opacity={active ? 1 : 0.6} />
+      </lineSegments>
+    </group>
   );
 }
 

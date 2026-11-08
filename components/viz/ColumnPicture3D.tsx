@@ -2,12 +2,12 @@
 
 import { Line } from "@react-three/drei";
 import { useState } from "react";
-import { Slider, fmt } from "@/components/ui";
+import { fmt } from "@/components/ui";
 import {
   Arrow3D,
+  DragPoint,
   Label3D,
   Plane3D,
-  Point3D,
   Scene3D,
   add,
   cross,
@@ -60,12 +60,21 @@ export default function ColumnPicture3D({ singular = false }: { singular?: boole
   const gap = Math.hypot(b[0] - reach[0], b[1] - reach[1], b[2] - reach[2]);
   const reachable = gap < 0.05;
 
-  const setBi = (i: number) => (v: number) => setB((p) => p.map((x, j) => (j === i ? v : x)) as V3);
+  // 특이한 경우: 회색 평면 가까이(0.3 이내) 가져오면 평면 위로 붙여서 '도달 가능' 상태를 만들 수 있게 함
+  const spanN = cross(A1, A2);
+  const moveB = (p: V3) => {
+    if (singular) {
+      const nn = dot(spanN, spanN);
+      const off = dot(spanN, p) / Math.sqrt(nn);
+      if (Math.abs(off) < 0.3) p = add(p, scale(spanN, -dot(spanN, p) / nn));
+    }
+    setB(p);
+  };
 
   return (
     <div className="space-y-4">
       <Scene3D palette={pal} camera={[10, -10, 6]}>
-        {singular ? <Plane3D n={cross(A1, A2)} d={0} color={pal.muted} size={10} opacity={0.18} /> : null}
+        {singular ? <Plane3D n={spanN} d={0} color={pal.muted} size={10} opacity={0.18} /> : null}
         <Arrow3D to={A1} color={pal.c1} opacity={0.3} radius={0.03} />
         <Arrow3D to={A2} color={pal.c2} opacity={0.3} radius={0.03} />
         <Arrow3D to={a3} color={pal.c3} opacity={0.3} radius={0.03} />
@@ -75,8 +84,8 @@ export default function ColumnPicture3D({ singular = false }: { singular?: boole
         {singular && !reachable ? (
           <Line points={[reach, b]} color={pal.cb} lineWidth={2} dashed dashSize={0.15} gapSize={0.1} />
         ) : null}
-        <Point3D p={b} color={pal.cb} r={0.14} />
-        <Label3D position={[b[0] - 0.5, b[1], b[2] + 0.1]} color={pal.cb}>
+        <DragPoint p={b} color={pal.cb} onChange={moveB} />
+        <Label3D position={[b[0] - 0.6, b[1], b[2] + 0.1]} color={pal.cb}>
           b
         </Label3D>
         <Label3D position={add(A1, [0.25, 0, 0.25])} color={pal.c1}>
@@ -91,10 +100,11 @@ export default function ColumnPicture3D({ singular = false }: { singular?: boole
       </Scene3D>
 
       <div className="grid gap-x-8 gap-y-3 md:grid-cols-[minmax(0,1fr)_240px]">
-        <div className="space-y-1.5">
-          <Slider label="b₁" value={b[0]} onChange={setBi(0)} min={-4} max={4} color={pal.cb} />
-          <Slider label="b₂" value={b[1]} onChange={setBi(1)} min={-4} max={4} color={pal.cb} />
-          <Slider label="b₃" value={b[2]} onChange={setBi(2)} min={-4} max={4} color={pal.cb} />
+        <div className="space-y-2 text-sm">
+          <p className="!my-0 text-muted">분홍 점 b를 잡고 끌어 보세요. 빈 곳을 끌면 회전합니다.</p>
+          <p className="!my-0 font-mono" style={{ color: pal.cb }}>
+            b = ({fmt(b[0])}, {fmt(b[1])}, {fmt(b[2])})
+          </p>
         </div>
         <div className="rounded-lg bg-surface-2 p-3 text-sm leading-relaxed">
           {!singular ? (
