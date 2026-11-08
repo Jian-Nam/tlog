@@ -17,9 +17,12 @@ export function Plane2D({
   view,
   children,
   onPointer,
+  gridR,
 }: {
   view: View;
   children: ReactNode;
+  /** 격자를 [-gridR, gridR]² 안에만 그림 (기본: 화면 전체) */
+  gridR?: number;
   /** 드래그 중인 포인터의 수학 좌표 */
   onPointer?: (p: V2, phase: "down" | "move" | "up") => void;
 }) {
@@ -37,8 +40,12 @@ export function Plane2D({
     [size, view.s],
   );
 
+  const G = gridR ?? R;
   const ticks: number[] = [];
-  for (let i = -Math.floor(R); i <= Math.floor(R); i++) ticks.push(i);
+  for (let i = -Math.floor(G); i <= Math.floor(G); i++) ticks.push(i);
+  // 격자 선의 시작/끝 (화면 좌표)
+  const g0 = gridR ? sx(-G) : 0;
+  const g1 = gridR ? sx(G) : size;
 
   return (
     <svg
@@ -58,12 +65,18 @@ export function Plane2D({
         onPointer?.(toMath(e), "up");
       }}
     >
+      {gridR ? (
+        <rect x={g0} y={g0} width={g1 - g0} height={g1 - g0} fill="var(--surface-2)" opacity={0.6} />
+      ) : null}
       {ticks.map((t) => (
         <g key={t}>
-          <line x1={sx(t)} x2={sx(t)} y1={0} y2={size} stroke="var(--grid)" strokeWidth={1} />
-          <line y1={sy(t)} y2={sy(t)} x1={0} x2={size} stroke="var(--grid)" strokeWidth={1} />
+          <line x1={sx(t)} x2={sx(t)} y1={g0} y2={g1} stroke="var(--grid)" strokeWidth={1} />
+          <line y1={sy(t)} y2={sy(t)} x1={g0} x2={g1} stroke="var(--grid)" strokeWidth={1} />
         </g>
       ))}
+      {gridR ? (
+        <rect x={g0} y={g0} width={g1 - g0} height={g1 - g0} fill="none" stroke="var(--axis)" strokeWidth={1} opacity={0.6} />
+      ) : null}
       <line x1={0} x2={size} y1={sy(0)} y2={sy(0)} stroke="var(--axis)" strokeWidth={1.5} />
       <line y1={0} y2={size} x1={sx(0)} x2={sx(0)} stroke="var(--axis)" strokeWidth={1.5} />
       {ticks
