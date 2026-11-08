@@ -12,7 +12,7 @@ const A = [
 ];
 const rowTone = (i: number) => TONE[i];
 
-/** A 는 강의 예제로 고정. 직선을 잡고 끌면 평행이동(b 변경) → 교점(해)이 자동으로 따라감 */
+/** A 는 본문 예제로 고정. 직선을 잡고 끌면 평행이동(b 변경) → 교점(해)이 자동으로 따라감 */
 export default function RowPicture2D() {
   const [b, setB] = useState<[number, number]>([0, 3]);
   const view = useView(5, 420);

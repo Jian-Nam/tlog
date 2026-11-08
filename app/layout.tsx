@@ -9,7 +9,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: { default: "tlog · 선형대수 노트", template: "%s · tlog" },
-  description: "MIT 18.06 Gilbert Strang 선형대수 강의를 보면서 함께 읽는 인터랙티브 노트",
+  description: "그래프를 직접 움직이며 읽는 선형대수 인터랙티브 노트",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <span className="text-sm font-normal text-muted">선형대수 인터랙티브 노트</span>
             </Link>
             <nav className="flex items-center gap-4 text-sm text-muted">
-              <Link href="/#lectures" className="hover:text-fg">강의 목록</Link>
+              <Link href="/#posts" className="hover:text-fg">노트</Link>
               <a href="https://github.com/Jian-Nam/tlog" target="_blank" rel="noreferrer" className="hover:text-fg">
                 GitHub
               </a>
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-border py-8 text-center text-xs text-muted">
-          강의 영상: MIT OpenCourseWare 18.06 Linear Algebra (Gilbert Strang, Spring 2005) · 노트와 시각화는 개인 학습용으로 작성되었습니다.
+          tlog · 선형대수 인터랙티브 노트
         </footer>
       </body>
     </html>

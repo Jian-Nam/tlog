@@ -1,11 +1,9 @@
-# tlog — 강의와 함께 보는 선형대수
+# tlog — 만져 보며 읽는 선형대수
 
-MIT 18.06 Linear Algebra (Gilbert Strang, Spring 2005) [유튜브 강의](https://www.youtube.com/playlist?list=PL49CF3715CB9EF31D)를
-보면서 함께 읽는 인터랙티브 노트 블로그입니다.
+그래프를 직접 움직이며 읽는 선형대수 인터랙티브 노트 블로그입니다.
 
-- 왼쪽에 영상, 오른쪽에 노트 (데스크톱에서는 영상이 고정)
-- 노트의 `▶ 12:34` 타임스탬프를 누르면 영상이 해당 장면으로 이동
-- 2D(SVG) / 3D(Three.js) 그래프를 슬라이더·드래그로 직접 조작
+- 글만으로 완결되는 노트 (외부 영상·강의 없이 읽을 수 있음)
+- 2D(SVG) / 3D(Three.js) 그래프를 드래그로 직접 조작
 
 ## 스택
 
@@ -23,24 +21,23 @@ npm run build
 
 ```
 app/
-  page.tsx                  홈 (강의 목록)
-  lectures/[slug]/page.tsx  강의 페이지 (영상 + 노트)
-lib/lectures.ts             전체 강의 목록 (제목, 유튜브 videoId)
+  page.tsx                  홈 (노트 목록)
+  posts/[slug]/page.tsx     노트 페이지 (목차 + 본문)
 content/
-  index.ts                  노트 등록부 (slug → 컴포넌트, 목차)
-  lec01.tsx                 1강 노트
+  index.ts                  노트 목록 (slug, 제목, 설명, 컴포넌트, 목차)
+  three-pictures.tsx        연립방정식을 보는 세 가지 그림
 components/
-  VideoPlayer.tsx           YouTube IFrame API 플레이어 + 타임스탬프 <T at="mm:ss" />
   Tex.tsx                   KaTeX 수식 (<Tex>, <M>)
+  FitMath.tsx               블록 수식을 폭에 맞게 축소
   ui.tsx                    Slider, Button, Figure
   viz/                      인터랙티브 그래프
     plane2d.tsx             2D 좌표평면 유틸 (SVG)
     scene3d.tsx             3D 장면 유틸 (화살표, 평면, 점, 3x3 풀이)
-    RowPicture2D / ColumnPicture2D / RowPicture3D / ColumnPicture3D / MatVec
+    latex.ts                방정식 / Ax = b / 열 일차결합 수식 생성
+    RowPicture2D / ColumnPicture2D / RowPicture3D / ColumnPicture3D / MatVec / EqMatrixMap
 ```
 
-## 새 강의 노트 추가하기
+## 새 노트 추가하기
 
-1. `content/lecNN.tsx` 작성 (`toc` export + 기본 export 컴포넌트)
-2. `content/index.ts`에 등록
-3. `lib/lectures.ts`의 `READY`에 강의 번호 추가
+1. `content/<slug>.tsx` 작성 (`toc` export + 기본 export 컴포넌트)
+2. `content/index.ts`의 `posts`에 추가 (읽는 순서대로)
