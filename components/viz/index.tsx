@@ -16,3 +16,5 @@ export { default as RowPicture2D } from "./RowPicture2D";
 export { default as ColumnPicture2D } from "./ColumnPicture2D";
 export { default as MatVec } from "./MatVec";
 export { default as EqMatrixMap } from "./EqMatrixMap";
+export const Elimination3D = dynamic(() => import("./Elimination3D"), { ssr: false, loading: () => <Loading /> });
+export { default as EliminationLine2D } from "./EliminationLine2D";

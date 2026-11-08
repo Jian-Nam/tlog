@@ -146,3 +146,35 @@ export function columnsTex(
   const mb = b.map((v, i) => paint(bClass(i), val(v, tpl))).join(" \\\\ ");
   return `${parts.join(" ")} = \\begin{bmatrix} ${mb} \\end{bmatrix}`;
 }
+
+/**
+ * 첨가행렬 [A | b]. 행마다 색(행 그림), 모든 칸은 고정 폭 자리.
+ * pivot(i, j) 가 참인 칸은 테두리로 표시 (outline 이라 폭이 변하지 않음)
+ */
+export function augTex(
+  A: number[][],
+  b: number[],
+  {
+    rowClass,
+    pivot,
+    tpl = "-0",
+    bTpl = "-00",
+  }: {
+    rowClass?: (i: number) => string | undefined;
+    pivot?: (i: number, j: number) => boolean;
+    tpl?: string;
+    bTpl?: string;
+  } = {},
+) {
+  const n = A[0].length;
+  const body = A.map((row, i) => {
+    const cells = row.map((a, j) => {
+      // 테두리는 자리(slot) 전체가 아니라 값에만 둘러서 숫자에 딱 맞게
+      const v = fmt(a);
+      return paint(rowClass?.(i), slot(pivot?.(i, j) ? `\\htmlClass{tx-pivot}{${v}}` : v, tpl));
+    });
+    cells.push(paint(rowClass?.(i), slot(fmt(b[i]), bTpl)));
+    return cells.join(" & ");
+  }).join(" \\\\ ");
+  return `\\left[\\begin{array}{${"r".repeat(n)}|r} ${body} \\end{array}\\right]`;
+}

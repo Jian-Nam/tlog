@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import Elimination, { toc as tocElimination } from "./elimination";
 import ThreePictures, { toc as tocThreePictures } from "./three-pictures";
 
 export type Toc = { id: string; label: string }[];
@@ -19,6 +20,13 @@ export const posts: Post[] = [
     description: "행 그림, 열 그림, 그리고 Ax = b. 같은 방정식을 세 시점에서 보고, 언제 해가 없는지 확인합니다.",
     Component: ThreePictures,
     toc: tocThreePictures,
+  },
+  {
+    slug: "elimination",
+    title: "소거법: 행렬로 푸는 연립방정식",
+    description: "식을 빼서 미지수를 지우고, 그 과정을 행렬 곱셈으로 씁니다. 피벗, 후진대입, 소거 행렬 E, 치환행렬까지.",
+    Component: Elimination,
+    toc: tocElimination,
   },
 ];
 

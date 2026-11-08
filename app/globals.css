@@ -102,6 +102,8 @@ body {
 .fit-math {
   width: 100%;
   overflow: hidden;
+  /* 피벗 테두리처럼 글자 밖으로 살짝 나가는 표시가 잘리지 않게 */
+  padding-block: 3px;
   text-align: center;
 }
 .fit-math-inner {
@@ -129,6 +131,8 @@ body {
 .tx-c3 { color: var(--c3); }
 .tx-b { color: var(--cb); }
 .tx-dim { opacity: 0.4; }
+/* 피벗 표시: outline 은 레이아웃 폭에 영향을 주지 않아서, 피벗이 생겨도 행렬 폭이 그대로 */
+.tx-pivot { outline: 1.5px solid currentColor; outline-offset: 1px; border-radius: 3px; }
 
 /* ---------- 슬라이더 ---------- */
 input[type="range"].slider {
