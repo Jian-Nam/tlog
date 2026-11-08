@@ -2,8 +2,9 @@
 
 import { Line } from "@react-three/drei";
 import { useState } from "react";
-import { Tex } from "@/components/Tex";
 import { fmt } from "@/components/ui";
+import { FormulaPair } from "./FormulaPair";
+import { TONE, equationsTex, matrixTex } from "./latex";
 import { DraggablePlane, Label3D, Point3D, Scene3D, planeIntersection, solve3, usePalette, type V3 } from "./scene3d";
 
 const ROWS: [V3, V3, V3] = [
@@ -11,8 +12,7 @@ const ROWS: [V3, V3, V3] = [
   [-1, 2, -1],
   [0, -3, 4],
 ];
-const EQ = ["2x - y", "-x + 2y - z", "-3y + 4z"];
-const COLS = ["tx-c1", "tx-c2", "tx-c3"];
+const rowTone = (i: number) => TONE[i];
 const PAIRS: [number, number][] = [
   [0, 1],
   [0, 2],
@@ -44,20 +44,17 @@ export default function RowPicture3D() {
         </Label3D>
       </Scene3D>
 
-      <div className="grid items-center gap-x-8 gap-y-3 md:grid-cols-[minmax(0,1fr)_200px]">
-        <div className="eq-tight space-y-1 text-sm">
-          <p className="!mb-2 !mt-0 text-muted">평면을 잡고 끌면 평행이동합니다. 빈 곳을 끌면 회전합니다.</p>
-          {EQ.map((e, i) => (
-            <div key={i} className={COLS[i]}>
-              <Tex block>{`${e} = ${fmt(b[i])}`}</Tex>
-            </div>
-          ))}
-        </div>
-        <div className="rounded-lg bg-surface-2 p-3 font-mono text-sm" style={{ color: pal.cb }}>
-          해 (x, y, z) =
-          <br />({fmt(sol[0])}, {fmt(sol[1])}, {fmt(sol[2])})
-        </div>
-      </div>
+      <p className="!my-0 text-sm text-muted">평면을 잡고 끌면 평행이동합니다. 빈 곳을 끌면 회전합니다.</p>
+      <FormulaPair
+        layout="row"
+        items={[
+          { label: "방정식 (행마다 평면 하나)", tex: equationsTex(ROWS, b, { termClass: rowTone, bClass: rowTone }) },
+          {
+            label: "행렬 형태 Ax = b",
+            tex: matrixTex(ROWS, sol, b, { cellClass: rowTone, bClass: rowTone, xClass: () => "tx-b" }),
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Tex } from "@/components/Tex";
-import { fmt } from "@/components/ui";
+import { FormulaPair } from "./FormulaPair";
+import { TONE, columnsTex, matrixTex } from "./latex";
 import { Arrow, Dot, Label, Plane2D, solve2, useView, type V2 } from "./plane2d";
 
-const a1: V2 = [2, -1];
-const a2: V2 = [-1, 2];
+const A = [
+  [2, -1],
+  [-1, 2],
+];
+const a1: V2 = [A[0][0], A[1][0]];
+const a2: V2 = [A[0][1], A[1][1]];
 // b 는 격자(±LIM) 안 어디든 이동 가능. 이때 x = (2b₁+b₂)/3 이므로 |x| ≤ LIM,
 // x·a₁ = (2x, -x) 의 끝점은 최대 2·LIM 까지 나감 → 화면 범위를 2·LIM + 여유로 잡음
 const LIM = 4;
+const colTone = (j: number) => TONE[j];
 
 /** b 를 드래그하면 x, y 가 자동으로 계산되어 x·a₁ + y·a₂ 가 그려짐 */
 export default function ColumnPicture2D() {
@@ -22,7 +27,7 @@ export default function ColumnPicture2D() {
   const clamp = (v: number) => Math.max(-LIM, Math.min(LIM, Math.round(v * 10) / 10));
 
   return (
-    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_240px]">
+    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_250px]">
       <div className="cursor-crosshair rounded-lg border border-border">
         <Plane2D view={view} gridR={LIM} onPointer={(p, phase) => phase !== "up" && setB([clamp(p[0]), clamp(p[1])])}>
           <Arrow view={view} to={a1} color="var(--c1)" width={1.5} opacity={0.35} dashed />
@@ -43,19 +48,19 @@ export default function ColumnPicture2D() {
         </Plane2D>
       </div>
 
-      <div className="flex flex-col justify-center gap-4 text-sm">
-        <p className="text-muted">
-          격자 안 아무 곳이나 눌러 <strong style={{ color: "var(--cb)" }}>b</strong>를 옮겨 보세요. 격자 바깥은
-          화살표가 지나가는 여백입니다.
+      <div className="flex flex-col justify-center gap-3 text-sm">
+        <p className="!my-0 text-muted">
+          격자 안 아무 곳이나 눌러 <strong className="tx-b">b</strong>를 옮겨 보세요.
         </p>
-        <Tex block>{`\\htmlClass{tx-c1}{${fmt(x)}\\begin{bmatrix}2\\\\-1\\end{bmatrix}} + \\htmlClass{tx-c2}{${fmt(
-          y,
-        )}\\begin{bmatrix}-1\\\\2\\end{bmatrix}} = \\htmlClass{tx-b}{\\begin{bmatrix}${fmt(b[0])}\\\\${fmt(b[1])}\\end{bmatrix}}`}</Tex>
-        <div className="rounded-lg bg-surface-2 p-3 font-mono">
-          <span style={{ color: "var(--c1)" }}>x = {fmt(x)}</span>
-          <br />
-          <span style={{ color: "var(--c2)" }}>y = {fmt(y)}</span>
-        </div>
+        <FormulaPair
+          items={[
+            { label: "열의 일차결합", tex: columnsTex(A, [x, y], b) },
+            {
+              label: "행렬 형태 Ax = b",
+              tex: matrixTex(A, [x, y], b, { cellClass: (_, j) => colTone(j), xClass: colTone, bClass: () => "tx-b" }),
+            },
+          ]}
+        />
       </div>
     </div>
   );

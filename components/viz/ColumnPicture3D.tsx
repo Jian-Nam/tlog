@@ -3,6 +3,8 @@
 import { Line } from "@react-three/drei";
 import { useState } from "react";
 import { fmt } from "@/components/ui";
+import { FormulaPair } from "./FormulaPair";
+import { TONE, columnsTex, matrixTex } from "./latex";
 import {
   Arrow3D,
   DragPoint,
@@ -22,6 +24,11 @@ const A1: V3 = [2, -1, 0];
 const A2: V3 = [-1, 2, -3];
 const A3_OK: V3 = [0, -1, 4];
 const A3_SINGULAR: V3 = add(A1, A2); // [1, 1, -3]
+const colPaint = {
+  cellClass: (_: number, j: number) => TONE[j],
+  xClass: (j: number) => TONE[j],
+  bClass: () => "tx-b",
+};
 
 /**
  * b 만 조작 → 계수 x, y, z 가 자동으로 계산되어 x·a₁ + y·a₂ + z·a₃ 화살표가 그려짐.
@@ -32,14 +39,15 @@ export default function ColumnPicture3D({ singular = false }: { singular?: boole
   const [b, setB] = useState<V3>([0, -1, 4]);
   const a3 = singular ? A3_SINGULAR : A3_OK;
 
+  // 행렬 A (열 = a₁, a₂, a₃)
+  const rows: [V3, V3, V3] = [
+    [A1[0], A2[0], a3[0]],
+    [A1[1], A2[1], a3[1]],
+    [A1[2], A2[2], a3[2]],
+  ];
   let coef: V3;
   let reach: V3;
   if (!singular) {
-    const rows: [V3, V3, V3] = [
-      [A1[0], A2[0], a3[0]],
-      [A1[1], A2[1], a3[1]],
-      [A1[2], A2[2], a3[2]],
-    ];
     coef = solve3(rows, b)!;
     reach = b;
   } else {
@@ -99,32 +107,36 @@ export default function ColumnPicture3D({ singular = false }: { singular?: boole
         </Label3D>
       </Scene3D>
 
-      <div className="grid gap-x-8 gap-y-3 md:grid-cols-[minmax(0,1fr)_240px]">
-        <div className="space-y-2 text-sm">
-          <p className="!my-0 text-muted">분홍 점 b를 잡고 끌어 보세요. 빈 곳을 끌면 회전합니다.</p>
-          <p className="!my-0 font-mono" style={{ color: pal.cb }}>
-            b = ({fmt(b[0])}, {fmt(b[1])}, {fmt(b[2])})
-          </p>
-        </div>
-        <div className="rounded-lg bg-surface-2 p-3 text-sm leading-relaxed">
-          {!singular ? (
-            <div className="font-mono">
-              <span style={{ color: pal.c1 }}>x = {fmt(coef[0])}</span>
-              <br />
-              <span style={{ color: pal.c2 }}>y = {fmt(coef[1])}</span>
-              <br />
-              <span style={{ color: pal.c3 }}>z = {fmt(coef[2])}</span>
-            </div>
-          ) : reachable ? (
-            <>b가 회색 평면 위에 있습니다. 도달할 수 있지만, 방법이 무수히 많습니다.</>
+      <p className="!my-0 text-sm text-muted">분홍 점 b를 잡고 끌어 보세요. 빈 곳을 끌면 회전합니다.</p>
+      <FormulaPair
+        layout="row"
+        items={
+          !singular || reachable
+            ? [
+                { label: "열의 일차결합", tex: columnsTex(rows, coef, b) },
+                { label: "행렬 형태 Ax = b", tex: matrixTex(rows, coef, b, colPaint) },
+              ]
+            : [
+                {
+                  label: "열의 일차결합 (b에 가장 가까운 점)",
+                  tex: `${columnsTex(rows, coef, reach, { bClass: () => undefined })} \\neq \\htmlClass{tx-b}{b}`,
+                },
+                { label: "행렬 형태 Ax = b — 해 없음", tex: matrixTex(rows, ["x", "y", "z"], b, colPaint) },
+              ]
+        }
+      />
+      {singular ? (
+        <p className="!my-0 rounded-lg bg-surface-2 p-3 text-sm leading-relaxed">
+          {reachable ? (
+            <>b가 회색 평면 위에 있습니다. 도달할 수 있지만, 방법이 무수히 많습니다 (위는 그중 하나).</>
           ) : (
             <>
               <strong style={{ color: pal.cb }}>도달 불가.</strong> 조합은 회색 평면을 벗어날 수 없어, b와{" "}
               <span className="font-mono">{fmt(gap)}</span>만큼 떨어진 점까지만 갈 수 있습니다.
             </>
           )}
-        </div>
-      </div>
+        </p>
+      ) : null}
     </div>
   );
 }
